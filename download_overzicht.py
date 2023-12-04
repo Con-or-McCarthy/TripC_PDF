@@ -4,7 +4,6 @@ import time
 import PyPDF2
 import re
 
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -77,7 +76,7 @@ def log_in(browser):
 
 
 # Downloads Overzicht for desired_month . If None is supplied, returns first result
-# desired_month takes form Oktober 2023 (in Dutch) 
+# desired_month takes form "Oktober 2023" (in Dutch) 
 def download_overview(browser, desired_month=None):
     invoice_rows = WebDriverWait(browser, 30).until(
         expected_conditions.visibility_of_all_elements_located((By.XPATH, '//div[@class="invoicesRow nes-mt-3 nes-mb-3"]'))
@@ -105,7 +104,8 @@ def download_overview(browser, desired_month=None):
             click(browser, button_element)
             time.sleep(WAIT_BETWEEN_CLICKS)
             return date_text
-        
+    
+    # TODO: raise exception when desired month cannot be found
     print("No matching month found")
     return 0
 

@@ -5,8 +5,9 @@ import fitz
 
 DECLARATIONS_DIR = os.getcwd() + '/declarations/'
 # Stops which if found, indicate the NFI was visited that day
-STOPS_OF_INTEREST = ["Den Haag Centraal", "Den Haag HS", "Den Haag Ypenburg", "Laan van Ypenburg"]
+STOPS_OF_INTEREST = ["Den Haag Centraal", "Den Haag HS", "Den Haag Ypenburg", "Laan van Ypenburg", "Noordwijkerhout, Langelaan"]
 
+# BUG: This script does not work for OV-fiets. It leaves the info but redacts the charge and does not add it - can investigate using Augustus 2023
 
 # find the dates on which the NFI was visited
 def find_dates(path_to_pdf):
@@ -108,7 +109,7 @@ class Redactor:
              
         # saving it to a new pdf
         doc.save(self.write_path)
-        print(f"Document saved to {self.write_path}")
+        print(f"Document saved to: {self.write_path}")
 
 
 # Given location of unredacted pdf, get location for writing new pdf
@@ -134,7 +135,7 @@ def edit_main(read_path=DECLARATIONS_DIR+"1111_december_overzicht.pdf"):
 
     # Find dates of NFI visits
     NFI_dates = find_dates(read_path)
-    print("Dates of NFI visits:\n", NFI_dates)
+    print("Dates of NFI visits:", NFI_dates)
 
     # Calculate money owed
     total_charge = calculate_charge(read_path, NFI_dates)
@@ -150,6 +151,6 @@ def edit_main(read_path=DECLARATIONS_DIR+"1111_december_overzicht.pdf"):
     print("Redaction complete")
 
 if __name__ =="__main__":
-    edit_main("declarations/2023_oktober_overzicht.pdf")
+    edit_main()
 
 
