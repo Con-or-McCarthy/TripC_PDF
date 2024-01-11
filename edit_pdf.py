@@ -6,6 +6,8 @@ import fitz
 DECLARATIONS_DIR = os.getcwd() + '/declarations/'
 # Stops which if found, indicate the NFI was visited that day
 STOPS_OF_INTEREST = ["Den Haag Centraal", "Den Haag HS", "Den Haag Ypenburg", "Laan van Ypenburg", "Noordwijkerhout, Langelaan"]
+# Specific personal info which I do not want to be redacted
+UNREDACTED_INFO = ["C.M.C. Mccarthy", "Factuurnummer"]
 
 # BUG: This script does not work for OV-fiets. It leaves the info but redacts the charge and does not add it - can investigate using Augustus 2023
 
@@ -79,6 +81,7 @@ class Redactor:
     def redaction(self, NFI_dates):
         # opening the pdf
         doc = fitz.open(self.read_path)
+        noredact_pattern = '|'.join(re.escape(s) for s in UNREDACTED_INFO)
          
         # iterating through pages
         for page in doc:
@@ -93,8 +96,11 @@ class Redactor:
             text_lines = text_page.extractBLOCKS()
 
             for line in text_lines:
+                # Skip/don't redact if not-to-be-redacted info is present
+                if bool(re.search(noredact_pattern, line[4])):
+                    continue
                 # Skip/don't redact if it's an NFI date
-                if line[4][:10] in NFI_dates:
+                elif line[4][:10] in NFI_dates:
                     continue
                 # Otherwise, redact
                 else:
@@ -151,6 +157,6 @@ def edit_main(read_path=DECLARATIONS_DIR+"1111_december_overzicht.pdf"):
     print("Redaction complete")
 
 if __name__ =="__main__":
-    edit_main()
+    edit_main(read_path=DECLARATIONS_DIR+"2023_december_overzicht.pdf")
 
 
