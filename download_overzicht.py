@@ -18,8 +18,7 @@ EMAIL = profile.email
 PASSWORD = profile.password
 
 DECLARATIONS_DIR = os.getcwd() + '/declarations/'
-CHROME_DRIVER_PATH =  '/home/conor/Downloads/chromedriver-linux64/chromedriver'
-
+CHROME_DRIVER_PATH =  "/home/conor/my_PhD/chromedriver/chromedriver-linux64/chromedriver"
 WAIT_FOR_DOWNLOAD = 5
 WAIT_BETWEEN_CLICKS = 2
 ELEMENT_TIMEOUT = 5
@@ -69,7 +68,7 @@ def log_in(browser):
     button = browser.find_element("xpath", '//input[@value="Inloggen"]')
     button.click()
     betaal_div = WebDriverWait(browser, ELEMENT_TIMEOUT).until(
-        expected_conditions.visibility_of_element_located((By.XPATH, '//a[@class="ng-tns-c94-2 mijnNSsubmenu__link icon--invoices" and @href="#/betaaloverzicht"]'))
+        expected_conditions.visibility_of_element_located((By.XPATH, '//a[@class="ng-tns-c83-2 mijnNSsubmenu__link icon--invoices" and @href="#/betaaloverzicht"]'))
     )
     click(browser, betaal_div)
     time.sleep(WAIT_BETWEEN_CLICKS)
@@ -100,14 +99,13 @@ def download_overview(browser, desired_month=None):
             return date_text
 
         # Break and return once desired month is reached
-        elif date_text == desired_month:
+        elif date_text.lower() == desired_month.lower():
             click(browser, button_element)
             time.sleep(WAIT_BETWEEN_CLICKS)
             return date_text
     
-    # TODO: raise exception when desired month cannot be found
-    print("No matching month found")
-    return 0
+    # raise exception when desired month cannot be found
+    raise ValueError("No matching month found")
 
 
 def rename_declaration_file(month_of_factuur):
