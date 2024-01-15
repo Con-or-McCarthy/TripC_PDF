@@ -1,7 +1,9 @@
 import re
 import os
+import random
 import PyPDF2
 import fitz
+from fpdf import FPDF
 
 DECLARATIONS_DIR = os.getcwd() + '/declarations/'
 # Stops which if found, indicate the NFI was visited that day
@@ -42,8 +44,9 @@ def find_dates(path_to_pdf):
     return list(set(NFI_dates))
 
 
+# Calculate daily charge also then write to file
 def calculate_charge(path_to_pdf, date_list):
-    total_charge = 0
+    daily_charges = {}
     with open(path_to_pdf, "rb") as file:
         pdf_reader = PyPDF2.PdfReader(file)
         
@@ -65,11 +68,21 @@ def calculate_charge(path_to_pdf, date_list):
                     if date in line:
                         # Use regular expression to extract the date
                         match = re.search(r"\d{1,2},\d{2}", line)
+                        # Extract the charge for that 
                         if match:
                             charge = match.group(0)
                             charge = float(charge.replace(",","."))
-                            total_charge += charge
-    return total_charge
+
+                            # Add the charge to the date
+                            if date not in daily_charges:
+                                daily_charges[date] = charge
+                            else: 
+                                daily_charges[date] += charge
+    
+    # Round charges to nearest cent
+    total_charge = round(sum(daily_charges.values()), 2)
+    daily_charges = {k: round(v, 2) for k, v in daily_charges.items()}
+    return daily_charges, total_charge
 
 
 class Redactor: 
@@ -136,6 +149,36 @@ def get_PDF_names(path_to_pdf, total_charge):
     
     return new_path 
 
+def save_charges(write_path, daily_charges, total_charge):
+    # get name of file
+    name, extension = os.path.splitext(write_path)
+    # Create a file
+    with open(f"{name}.txt", 'w') as f:  
+        # Write daily charges to file
+        f.write("Daily Charges:\n")
+        for key, value in daily_charges.items():  
+            f.write('%s: %s\n' % (key, value))
+        # Write Total Charge to file
+        f.write(f"Total Charge: {total_charge}")
+
+    # Make pdf
+    pdf = FPDF()   
+    pdf.add_page()
+    pdf.set_font("Arial", size = 15)
+    f = open(f"{name}.txt", "r")
+    for x in f:
+        # # Randomly set text colour
+        # r,g,b = random.sample(range(0, 255), 3)
+        # pdf.set_text_color(r,g,b)
+        pdf.cell(200, 10, txt = x, ln = 1, align = 'C')
+    # save the pdf with name .pdf
+    pdf.output(f"{name}_totals.pdf")   
+
+    # Delete .txt file
+    os.unlink(f"{name}.txt")
+
+    print(f"Saved daily charges to {name}_totals.pdf")
+
 
 def edit_main(read_path=DECLARATIONS_DIR+"1111_december_overzicht.pdf"):
 
@@ -144,12 +187,16 @@ def edit_main(read_path=DECLARATIONS_DIR+"1111_december_overzicht.pdf"):
     print("Dates of NFI visits:", NFI_dates)
 
     # Calculate money owed
-    total_charge = calculate_charge(read_path, NFI_dates)
-    total_charge = round(total_charge, 2)
-    print("Total charge for month:", total_charge)
+    daily_charges, total_charge = calculate_charge(read_path, NFI_dates)
+    print("Daily charges for the month:", daily_charges)
+    print("Toal Charges for the month:", total_charge)
+
 
     # Get paths of where to read pdf from and what to name new pdf
     write_path = get_PDF_names(read_path, total_charge)
+
+    # Save charges to .pdf file
+    save_charges(write_path, daily_charges, total_charge)
 
     # Redact unnecessary lines
     redactor = Redactor(read_path, write_path)
