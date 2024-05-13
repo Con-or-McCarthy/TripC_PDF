@@ -8,7 +8,7 @@ if __name__ == "__main__":
     # Accept arguments to specify desired factuur
     parser = argparse.ArgumentParser()
     parser.add_argument("-month", type=str, help="Month to download", default=None)
-    parser.add_argument("-year", type=str, help="Corresponding year of month", default="2023")
+    parser.add_argument("-year", type=str, help="Corresponding year of month", default="2024")
     args = parser.parse_args()
     month = args.month
     year = args.year
