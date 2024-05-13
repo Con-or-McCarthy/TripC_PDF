@@ -68,7 +68,7 @@ def log_in(browser):
     button = browser.find_element("xpath", '//input[@value="Inloggen"]')
     button.click()
     betaal_div = WebDriverWait(browser, ELEMENT_TIMEOUT).until(
-        expected_conditions.visibility_of_element_located((By.XPATH, '//a[@class="ng-tns-c83-2 mijnNSsubmenu__link icon--invoices" and @href="#/betaaloverzicht"]'))
+        expected_conditions.visibility_of_element_located((By.XPATH, '//a[@class="ng-tns-c3700571620-2 mijnNSsubmenu__link icon--invoices" and @href="#/betaaloverzicht"]'))
     )
     click(browser, betaal_div)
     time.sleep(WAIT_BETWEEN_CLICKS)
