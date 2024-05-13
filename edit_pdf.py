@@ -14,7 +14,8 @@ UNREDACTED_INFO = ["C.M.C. Mccarthy", "Factuurnummer"]
 # BUG: This script does not work for OV-fiets. It leaves the info but redacts the charge and does not add it - can investigate using Augustus 2023
 
 # find the dates on which the NFI was visited
-def find_dates(path_to_pdf):
+def find_dates(path_to_pdf, add_stops):
+    STOPS_OF_INTEREST.extend(add_stops)
     NFI_dates = []
     # Initialize a PDF reader object
     with open(path_to_pdf, "rb") as file:
@@ -180,10 +181,10 @@ def save_charges(write_path, daily_charges, total_charge):
     print(f"Saved daily charges to {name}_totals.pdf")
 
 
-def edit_main(read_path=DECLARATIONS_DIR+"1111_december_overzicht.pdf"):
+def edit_main(read_path=DECLARATIONS_DIR+"1111_december_overzicht.pdf", add_stops=[]):
 
     # Find dates of NFI visits
-    NFI_dates = find_dates(read_path)
+    NFI_dates = find_dates(read_path, add_stops)
     print("Dates of NFI visits:", NFI_dates)
 
     # Calculate money owed
